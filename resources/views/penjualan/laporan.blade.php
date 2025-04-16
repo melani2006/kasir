@@ -30,7 +30,7 @@
             <div class="col-md-2">
                 <label class="form-label">Tahun:</label>
                 <select name="tahun" class="form-select">
-                    @for ($y = date('Y'); $y >= 2020; $y--)
+                    @for ($y = date('Y'); $y >= 2000; $y--)
                         <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
                     @endfor
                 </select>

@@ -15,8 +15,8 @@
 </head>
 <body>
     <div class="struk">
-        <div class="judul">Toko XYZ</div>
-        <div class="center">Jl. Contoh No. 123, Kota ABC</div>
+        <div class="judul">The Cashy Store</div>
+        <div class="center">Jl. Raya kota Depok</div>
         <hr>
         <p><strong>Tanggal:</strong> {{ $penjualan->TanggalPenjualan }}</p>
         <p><strong>Pelanggan:</strong> {{ $penjualan->pelanggan->NamaPelanggan ?? 'Umum' }}</p>

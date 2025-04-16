@@ -1,14 +1,15 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
     <div class="app-brand demo">
         <a href="index.html" class="app-brand-link">
-            <span class="app-brand-logo demo">
-                <img src="../assets/img/favicon/logo apk.png" alt="Logo apk" width="50">
+            <span class="app-brand-logo demo" style="width: 55px; height: 55px;">
+                <img src="../assets/img/favicon/logo apk.png" alt="Logo apk" style="width: 100%; height: 100%; object-fit: contain;">
             </span>
-            <span class="app-brand-text demo menu-text fw-bolder ms-2">Kasir</span>
+            <span class="app-brand-text demo menu-text fw-bolder ms-2" style="font-size: 1rem;">The Cashy Store</span>
         </a>
         <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
             <i class="bx bx-chevron-left bx-sm align-middle"></i>
         </a>
+
     </div>
 
     <div class="menu-inner-shadow"></div>
