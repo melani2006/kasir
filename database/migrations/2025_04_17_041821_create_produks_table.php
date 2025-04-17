@@ -15,7 +15,9 @@ class CreateProduksTable extends Migration
             $table->integer('Stok');
             $table->date('Expired')->nullable();
             $table->unsignedBigInteger('Kategoriid');
+            $table->unsignedBigInteger('Supplierid');
             $table->foreign('Kategoriid')->references('Kategoriid')->on('kategoris');
+            $table->foreign('Supplierid')->references('Supplierid')->on('suppliers');
 
             $table->timestamps();
         });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk;
 use App\Models\Kategori;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class ProdukController extends Controller
@@ -22,7 +23,8 @@ class ProdukController extends Controller
     public function create()
     {
         $kategoris = Kategori::all();
-        return view('produk.create', compact('kategoris'));
+        $suppliers = Supplier::all();
+        return view('produk.create', compact('kategoris', 'suppliers'));
     }
 
     public function store(Request $request)
@@ -33,6 +35,7 @@ class ProdukController extends Controller
             'Stok' => 'required|integer|min:0',
             'Expired' => 'required|date',
             'Kategoriid' => 'required|exists:kategoris,Kategoriid',
+            'Supplierid' => 'required|exists:suppliers,Supplierid',
         ]);
 
         Produk::create([
@@ -41,6 +44,7 @@ class ProdukController extends Controller
             'Stok' => $request->Stok,
             'Expired' => $request->Expired,
             'Kategoriid' => $request->Kategoriid,
+            'Supplierid' => $request->Supplierid,
         ]);
 
         return redirect()->route('produk.index')->with('success', 'Produk berhasil ditambahkan.');
@@ -50,7 +54,8 @@ class ProdukController extends Controller
     {
         $produk = Produk::findOrFail($Produkid);
         $kategoris = Kategori::all();
-        return view('produk.edit', compact('produk', 'kategoris'));
+        $suppliers = Supplier::all();
+        return view('produk.edit', compact('produk', 'kategoris', 'suppliers'));
     }
 
     public function update(Request $request, $Produkid)
@@ -61,6 +66,7 @@ class ProdukController extends Controller
             'Stok' => 'required|integer|min:0',
             'Expired' => 'required|date',
             'Kategoriid' => 'required|exists:kategoris,Kategoriid',
+            'Supplierid' => 'required|exists:suppliers,Supplierid',
         ]);
 
         $produk = Produk::findOrFail($Produkid);
@@ -70,6 +76,7 @@ class ProdukController extends Controller
             'Stok' => $request->Stok,
             'Expired' => $request->Expired,
             'Kategoriid' => $request->Kategoriid,
+            'Supplierid' => $request->Supplierid,
         ]);
 
         return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui.');

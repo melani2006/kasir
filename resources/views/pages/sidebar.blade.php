@@ -38,6 +38,12 @@
                 <div>Pelanggan</div>
             </a>
         </li>
+        <li class="menu-item {{ request()->routeIs('supplier.*') ? 'active' : '' }}">
+            <a href="{{ route('supplier.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-store"></i>
+                <div>Supplier</div>
+            </a>
+        </li>
         <li class="menu-item {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
             <a href="{{ route('kategori.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-category"></i>

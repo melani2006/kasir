@@ -46,6 +46,14 @@
                     @endforeach
                 </select>
             </div>
+            <div class="mb-3">
+                <label for="Supplierid" class="form-label">Supplier:</label>
+                <select name="Supplierid" id="Supplierid" class="form-select" required>
+                    @foreach ($suppliers as $supplier)
+                        <option value="{{ $supplier->Supplierid }}" {{ $produk->Supplierid == $supplier->Supplierid ? 'selected' : '' }}>{{ $supplier->Nama }}</option>
+                    @endforeach
+                </select>
+            </div>
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Perbarui</button>

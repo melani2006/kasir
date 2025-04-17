@@ -8,6 +8,7 @@ use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SupplierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +28,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::resource('pelanggan', PelangganController::class);
     Route::resource('kategori', KategoriController::class);
     Route::resource('produk', ProdukController::class);
-
+    Route::resource('supplier', SupplierController::class);
     Route::post('/logout', [RegisterController::class, 'logout'])->name('logout');
 });
 

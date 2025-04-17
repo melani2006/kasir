@@ -11,20 +11,22 @@ class Produk extends Model
 
     protected $table = 'produks';
     protected $primaryKey = 'Produkid';
-    public $incrementing = true;
-    protected $keyType = 'int';
-    public $timestamps = false;
-
     protected $fillable = [
         'NamaProduk',
         'Harga',
         'Stok',
         'Expired',
         'Kategoriid',
+        'Supplierid'
     ];
 
     public function kategori()
     {
         return $this->belongsTo(Kategori::class, 'Kategoriid', 'Kategoriid');
+    }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'Supplierid', 'Supplierid');
     }
 }
