@@ -11,14 +11,16 @@ class Penjualan extends Model
 
     protected $table = 'penjualans';
     protected $primaryKey = 'penjualanid';
-    public $timestamps = false; // Jika tabel tidak memiliki created_at dan updated_at
+    public $timestamps = false;
 
     protected $fillable = [
         'TanggalPenjualan',
         'JumlahBayar',
         'Pelangganid',
         'MetodePembayaran',
-        'TotalHarga'
+        'TotalHarga',
+        'Kembalian',
+        'StatusMember',
     ];
 
     public function pelanggan()
@@ -31,31 +33,26 @@ class Penjualan extends Model
         return $this->hasMany(DetailPenjualan::class, 'penjualanid', 'penjualanid');
     }
 
-    public function produk()
-    {
-        return $this->belongsTo(Produk::class, 'Produkid', 'Produkid');
-    }
-
-    // Hitung Total Harga secara otomatis
-    public function getTotalHargaAttribute()
+    // Kalkulasi TotalHarga otomatis dari detail
+    public function getTotalHargaCalculatedAttribute()
     {
         return $this->detailPenjualans()->sum('Subtotal');
     }
 
-    // Hitung Kembalian secara otomatis
-    public function getKembalianAttribute()
+    // Kalkulasi Kembalian otomatis
+    public function getKembalianCalculatedAttribute()
     {
-        return max($this->JumlahBayar - $this->TotalHarga, 0);
+        return max($this->JumlahBayar - $this->getTotalHargaCalculatedAttribute(), 0);
     }
 
-    // Override save() supaya TotalHarga dan Kembalian selalu update
-    public static function boot()
+    protected static function boot()
     {
         parent::boot();
 
         static::saving(function ($model) {
-            $model->TotalHarga = $model->getTotalHargaAttribute();
-            $model->Kembalian = $model->getKembalianAttribute();
+            // Auto update total harga & kembalian sebelum disimpan
+            $model->TotalHarga = $model->getTotalHargaCalculatedAttribute();
+            $model->Kembalian = $model->getKembalianCalculatedAttribute();
         });
     }
 }

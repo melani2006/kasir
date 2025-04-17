@@ -23,8 +23,18 @@
         </div>
 
         <div class="mb-3">
+            <label for="StatusMember" class="form-label">Status Member</label>
+            <div>
+                <input type="radio" id="noMember" name="StatusMember" value="No Member" checked>
+                <label for="noMember">No Member</label>
+                <input type="radio" id="member" name="StatusMember" value="Member">
+                <label for="member">Member</label>
+            </div>
+        </div>
+
+        <div class="mb-3" id="PelangganContainer" style="display: none;">
             <label for="Pelangganid" class="form-label">Pelanggan</label>
-            <select name="Pelangganid" class="form-select" required>
+            <select name="Pelangganid" class="form-select">
                 <option value="" disabled selected>Pilih Pelanggan</option>
                 @foreach ($pelanggans as $pelanggan)
                     <option value="{{ $pelanggan->Pelangganid }}">{{ $pelanggan->NamaPelanggan }}</option>
@@ -165,6 +175,26 @@
         });
 
         document.getElementById("JumlahBayar").addEventListener("input", hitungKembalian);
+
+        // Status Member Radio Button
+        const statusMemberRadio = document.querySelectorAll('input[name="StatusMember"]');
+        const pelangganContainer = document.getElementById("PelangganContainer");
+
+        function togglePelanggan() {
+            const statusMemberValue = document.querySelector('input[name="StatusMember"]:checked').value;
+            if (statusMemberValue === "Member") {
+                pelangganContainer.style.display = "block";
+            } else {
+                pelangganContainer.style.display = "none";
+                pelangganContainer.querySelector("select").value = "";
+            }
+        }
+
+        statusMemberRadio.forEach(radio => {
+            radio.addEventListener("change", togglePelanggan);
+        });
+
+        togglePelanggan(); // inisialisasi
     });
 </script>
 @endsection

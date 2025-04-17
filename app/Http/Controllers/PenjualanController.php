@@ -41,12 +41,17 @@ class PenjualanController extends Controller
             'TanggalPenjualan' => 'required|date',
             'JumlahBayar' => 'required|numeric|min:0',
             'MetodePembayaran' => 'required|in:cash,debit,e-wallet,dana',
-            'Pelangganid' => 'required|exists:pelanggans,Pelangganid',
+            'StatusMember' => 'required|in:Member,No Member',
+            'Pelangganid' => 'nullable|exists:pelanggans,Pelangganid',
             'Produkid' => 'required|array',
             'Produkid.*' => 'exists:produks,Produkid',
             'JumlahProduk' => 'required|array',
             'JumlahProduk.*' => 'required|integer|min:1',
         ]);
+
+        if ($request->StatusMember === 'Member' && !$request->Pelangganid) {
+            return back()->with('error', 'Pilih pelanggan jika status Member.');
+        }
 
         $totalHarga = 0;
         $produkTerpilih = [];
@@ -72,7 +77,8 @@ class PenjualanController extends Controller
             'JumlahBayar' => $request->JumlahBayar,
             'Kembalian' => $kembalian,
             'MetodePembayaran' => $request->MetodePembayaran,
-            'Pelangganid' => $request->Pelangganid,
+            'Pelangganid' => $request->StatusMember === 'Member' ? $request->Pelangganid : null,
+            'StatusMember' => $request->StatusMember,
         ]);
 
         foreach ($produkTerpilih as $item) {
@@ -108,55 +114,46 @@ class PenjualanController extends Controller
     }
 
     public function laporan(Request $request)
-{
-    // Ambil bulan, tahun, dan minggu dari request (default: bulan & tahun sekarang, minggu "all")
-    $bulan = $request->input('bulan', date('m'));
-    $tahun = $request->input('tahun', date('Y'));
-    $minggu = $request->input('minggu', 'all');
+    {
+        $bulan = $request->input('bulan', date('m'));
+        $tahun = $request->input('tahun', date('Y'));
+        $minggu = $request->input('minggu', 'all');
 
-    // Ambil data penjualan berdasarkan bulan & tahun
-    $penjualans = Penjualan::whereYear('TanggalPenjualan', $tahun)
-        ->whereMonth('TanggalPenjualan', $bulan);
+        $penjualans = Penjualan::whereYear('TanggalPenjualan', $tahun)
+            ->whereMonth('TanggalPenjualan', $bulan);
 
-    // Filter berdasarkan minggu jika tidak memilih "all"
-    if ($minggu !== 'all') {
-        $penjualans->whereRaw(
-            'WEEK(TanggalPenjualan, 1) - WEEK(DATE_SUB(TanggalPenjualan, INTERVAL DAYOFMONTH(TanggalPenjualan)-1 DAY), 1) + 1 = ?',
-            [$minggu]
-        );
+        if ($minggu !== 'all') {
+            $penjualans->whereRaw(
+                'WEEK(TanggalPenjualan, 1) - WEEK(DATE_SUB(TanggalPenjualan, INTERVAL DAYOFMONTH(TanggalPenjualan)-1 DAY), 1) + 1 = ?',
+                [$minggu]
+            );
+        }
+
+        $penjualans = $penjualans->get();
+
+        return view('penjualan.laporan', compact('penjualans', 'bulan', 'tahun', 'minggu'));
     }
 
-    // Eksekusi query
-    $penjualans = $penjualans->get();
+    public function cetakLaporan(Request $request)
+    {
+        $bulan = $request->input('bulan', date('m'));
+        $tahun = $request->input('tahun', date('Y'));
+        $minggu = $request->input('minggu', 'all');
 
-    return view('penjualan.laporan', compact('penjualans', 'bulan', 'tahun', 'minggu'));
-}
+        $penjualans = Penjualan::whereYear('TanggalPenjualan', $tahun)
+            ->whereMonth('TanggalPenjualan', $bulan);
 
-public function cetakLaporan(Request $request)
-{
-    // Ambil bulan, tahun, dan minggu dari request
-    $bulan = $request->input('bulan', date('m'));
-    $tahun = $request->input('tahun', date('Y'));
-    $minggu = $request->input('minggu', 'all');
+        if ($minggu !== 'all') {
+            $penjualans->whereRaw(
+                'WEEK(TanggalPenjualan, 1) - WEEK(DATE_SUB(TanggalPenjualan, INTERVAL DAYOFMONTH(TanggalPenjualan)-1 DAY), 1) + 1 = ?',
+                [$minggu]
+            );
+        }
 
-    // Ambil data penjualan berdasarkan bulan & tahun
-    $penjualans = Penjualan::whereYear('TanggalPenjualan', $tahun)
-        ->whereMonth('TanggalPenjualan', $bulan);
+        $penjualans = $penjualans->get();
 
-    // Filter berdasarkan minggu jika tidak memilih "all"
-    if ($minggu !== 'all') {
-        $penjualans->whereRaw(
-            'WEEK(TanggalPenjualan, 1) - WEEK(DATE_SUB(TanggalPenjualan, INTERVAL DAYOFMONTH(TanggalPenjualan)-1 DAY), 1) + 1 = ?',
-            [$minggu]
-        );
+        $pdf = Pdf::loadView('penjualan.cetak-laporan', compact('penjualans', 'bulan', 'tahun', 'minggu'));
+
+        return $pdf->download("Laporan_Penjualan_{$bulan}_{$tahun}_minggu_{$minggu}.pdf");
     }
-
-    // Eksekusi query
-    $penjualans = $penjualans->get();
-
-    // Generate PDF
-    $pdf = Pdf::loadView('penjualan.cetak-laporan', compact('penjualans', 'bulan', 'tahun', 'minggu'));
-
-    return $pdf->download("Laporan_Penjualan_{$bulan}_{$tahun}_minggu_{$minggu}.pdf");
-}
 }
