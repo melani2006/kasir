@@ -53,43 +53,46 @@ class PenjualanController extends Controller
             return back()->with('error', 'Pilih pelanggan jika status Member.');
         }
 
+        $penjualan = Penjualan::create([
+            'TanggalPenjualan' => $request->TanggalPenjualan,
+            'TotalHarga' => 0, // sementara
+            'JumlahBayar' => $request->JumlahBayar,
+            'Kembalian' => 0, // sementara
+            'MetodePembayaran' => $request->MetodePembayaran,
+            'StatusMember' => $request->StatusMember,
+            'Pelangganid' => $request->StatusMember === 'Member' ? $request->Pelangganid : null,
+        ]);
+
         $totalHarga = 0;
-        $produkTerpilih = [];
 
         foreach ($request->Produkid as $index => $Produkid) {
             $produk = Produk::findOrFail($Produkid);
             $jumlah = $request->JumlahProduk[$index];
 
             if ($produk->Stok < $jumlah) {
+                $penjualan->delete();
                 return back()->with('error', "Stok produk {$produk->NamaProduk} tidak mencukupi!");
             }
 
             $subtotal = $produk->Harga * $jumlah;
             $totalHarga += $subtotal;
-            $produkTerpilih[] = ['produk' => $produk, 'jumlah' => $jumlah, 'subtotal' => $subtotal];
+
+            DetailPenjualan::create([
+                'penjualanid' => $penjualan->penjualanid,
+                'Produkid' => $produk->Produkid,
+                'JumlahProduk' => $jumlah,
+                'Subtotal' => $subtotal,
+            ]);
+
+            $produk->decrement('Stok', $jumlah);
         }
 
         $kembalian = max($request->JumlahBayar - $totalHarga, 0);
 
-        $penjualan = Penjualan::create([
-            'TanggalPenjualan' => $request->TanggalPenjualan,
+        $penjualan->update([
             'TotalHarga' => $totalHarga,
-            'JumlahBayar' => $request->JumlahBayar,
             'Kembalian' => $kembalian,
-            'MetodePembayaran' => $request->MetodePembayaran,
-            'Pelangganid' => $request->StatusMember === 'Member' ? $request->Pelangganid : null,
         ]);
-
-        foreach ($produkTerpilih as $item) {
-            DetailPenjualan::create([
-                'penjualanid' => $penjualan->penjualanid,
-                'Produkid' => $item['produk']->Produkid,
-                'JumlahProduk' => $item['jumlah'],
-                'Subtotal' => $item['subtotal'],
-            ]);
-
-            $item['produk']->decrement('Stok', $item['jumlah']);
-        }
 
         return redirect()->route('penjualan.index')->with('success', 'Transaksi berhasil ditambahkan.');
     }
@@ -113,46 +116,44 @@ class PenjualanController extends Controller
     }
 
     public function laporan(Request $request)
-    {
-        $bulan = $request->input('bulan', date('m'));
-        $tahun = $request->input('tahun', date('Y'));
-        $minggu = $request->input('minggu', 'all');
+{
+    $tanggal_mulai = $request->input('tanggal_mulai');
+    $tanggal_selesai = $request->input('tanggal_selesai');
 
-        $penjualans = Penjualan::whereYear('TanggalPenjualan', $tahun)
-            ->whereMonth('TanggalPenjualan', $bulan);
+    $penjualans = Penjualan::query();
 
-        if ($minggu !== 'all') {
-            $penjualans->whereRaw(
-                'WEEK(TanggalPenjualan, 1) - WEEK(DATE_SUB(TanggalPenjualan, INTERVAL DAYOFMONTH(TanggalPenjualan)-1 DAY), 1) + 1 = ?',
-                [$minggu]
-            );
-        }
-
-        $penjualans = $penjualans->get();
-
-        return view('penjualan.laporan', compact('penjualans', 'bulan', 'tahun', 'minggu'));
+    // Menambahkan filter berdasarkan Tanggal Masuk dan Tanggal Keluar
+    if ($tanggal_mulai && $tanggal_selesai) {
+        $penjualans->whereBetween('TanggalPenjualan', [$tanggal_mulai, $tanggal_selesai]);
     }
 
-    public function cetakLaporan(Request $request)
-    {
-        $bulan = $request->input('bulan', date('m'));
-        $tahun = $request->input('tahun', date('Y'));
-        $minggu = $request->input('minggu', 'all');
+    $penjualans = $penjualans->get();
 
-        $penjualans = Penjualan::whereYear('TanggalPenjualan', $tahun)
-            ->whereMonth('TanggalPenjualan', $bulan);
+    // Menghitung total keseluruhan
+    $totalKeseluruhan = $penjualans->sum('TotalHarga');
 
-        if ($minggu !== 'all') {
-            $penjualans->whereRaw(
-                'WEEK(TanggalPenjualan, 1) - WEEK(DATE_SUB(TanggalPenjualan, INTERVAL DAYOFMONTH(TanggalPenjualan)-1 DAY), 1) + 1 = ?',
-                [$minggu]
-            );
-        }
+    return view('penjualan.laporan', compact('penjualans', 'tanggal_mulai', 'tanggal_selesai', 'totalKeseluruhan'));
+}
 
-        $penjualans = $penjualans->get();
+public function cetakLaporan(Request $request)
+{
+    $tanggal_mulai = $request->input('tanggal_mulai');
+    $tanggal_selesai = $request->input('tanggal_selesai');
 
-        $pdf = Pdf::loadView('penjualan.cetak-laporan', compact('penjualans', 'bulan', 'tahun', 'minggu'));
+    $penjualans = Penjualan::query();
 
-        return $pdf->download("Laporan_Penjualan_{$bulan}_{$tahun}_minggu_{$minggu}.pdf");
+    // Menambahkan filter berdasarkan Tanggal Masuk dan Tanggal Keluar
+    if ($tanggal_mulai && $tanggal_selesai) {
+        $penjualans->whereBetween('TanggalPenjualan', [$tanggal_mulai, $tanggal_selesai]);
     }
+
+    $penjualans = $penjualans->get();
+
+    // Menghitung total keseluruhan
+    $totalKeseluruhan = $penjualans->sum('TotalHarga');
+
+    $pdf = Pdf::loadView('penjualan.cetak-laporan', compact('penjualans', 'tanggal_mulai', 'tanggal_selesai', 'totalKeseluruhan'));
+
+    return $pdf->download("Laporan_Penjualan_{$tanggal_mulai}_{$tanggal_selesai}.pdf");
+}
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Penjualan{{ $bulan }} Tahun {{ $tahun }}</title>
+    <title>Laporan Penjualan - {{ date('d F Y', strtotime($tanggal_mulai)) }} - {{ date('d F Y', strtotime($tanggal_selesai)) }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         table {
@@ -24,18 +24,15 @@
 </head>
 <body>
     <div class="container mt-4">
-        <h2 class="mb-4 text-center">Laporan Penjualan - {{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</h2>
-        @if ($minggu !== 'all')
-            <h3>Minggu ke-{{ $minggu }}</h3>
-        @endif
+        <h2 class="mb-4 text-center">Laporan Penjualan</h2>
+        <h4 class="mb-4 text-center">{{ date('d F Y', strtotime($tanggal_mulai)) }} - {{ date('d F Y', strtotime($tanggal_selesai)) }}</h4>
+
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>Tanggal</th>
                         <th>Total Harga</th>
-                        <th>Jumlah Bayar</th>
-                        <th>Kembalian</th>
                         <th>Metode Pembayaran</th>
                     </tr>
                 </thead>
@@ -44,16 +41,17 @@
                         <tr>
                             <td>{{ date('d-m-Y', strtotime($penjualan->TanggalPenjualan)) }}</td>
                             <td>Rp {{ number_format($penjualan->TotalHarga, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($penjualan->JumlahBayar, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($penjualan->Kembalian, 0, ',', '.') }}</td>
                             <td>{{ ucfirst($penjualan->MetodePembayaran) }}</td>
                         </tr>
                     @endforeach
+                    <tr>
+                        <td><strong>Total Keseluruhan</strong></td>
+                        <td><strong>Rp {{ number_format($totalKeseluruhan, 0, ',', '.') }}</strong></td>
+                        <td></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
