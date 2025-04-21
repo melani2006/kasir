@@ -15,10 +15,10 @@ class CreatePenjualansTable extends Migration
             $table->decimal('JumlahBayar', 10, 2);
             $table->decimal('Kembalian', 10, 2);
             $table->enum('MetodePembayaran', ['cash', 'debit', 'e-wallet', 'dana']);
-            $table->unsignedBigInteger('Pelangganid'); // Foreign key
+            $table->unsignedBigInteger('Pelangganid')->nullable(); // Foreign key yang nullable
 
             // Foreign key reference to `Pelangganid` in `pelanggans`
-            $table->foreign('Pelangganid')->references('Pelangganid')->on('pelanggans')->onDelete('cascade');
+            $table->foreign('Pelangganid')->references('Pelangganid')->on('pelanggans')->onDelete('set null');
 
             $table->timestamps();
         });

@@ -78,7 +78,6 @@ class PenjualanController extends Controller
             'Kembalian' => $kembalian,
             'MetodePembayaran' => $request->MetodePembayaran,
             'Pelangganid' => $request->StatusMember === 'Member' ? $request->Pelangganid : null,
-            'StatusMember' => $request->StatusMember,
         ]);
 
         foreach ($produkTerpilih as $item) {

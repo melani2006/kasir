@@ -23,7 +23,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="StatusMember" class="form-label">Status Member</label>
+            <label class="form-label">Status Member</label>
             <div>
                 <input type="radio" id="noMember" name="StatusMember" value="No Member" checked>
                 <label for="noMember">No Member</label>
@@ -112,89 +112,88 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        const produkList = document.getElementById("produk-list");
+
         function hitungSubtotal(row) {
-            let harga = parseFloat(row.querySelector(".harga-produk").value) || 0;
-            let jumlah = parseInt(row.querySelector(".jumlah-produk").value) || 0;
-            let subtotal = harga * jumlah;
+            const harga = parseFloat(row.querySelector(".harga-produk").value) || 0;
+            const jumlah = parseInt(row.querySelector(".jumlah-produk").value) || 0;
+            const subtotal = harga * jumlah;
             row.querySelector(".subtotal-produk").value = subtotal.toFixed(2);
-            hitungTotalHarga();
+            hitungTotal();
         }
 
-        function hitungTotalHarga() {
+        function hitungTotal() {
             let total = 0;
-            document.querySelectorAll(".subtotal-produk").forEach(function (input) {
-                total += parseFloat(input.value) || 0;
+            document.querySelectorAll(".subtotal-produk").forEach(el => {
+                total += parseFloat(el.value) || 0;
             });
             document.getElementById("TotalHarga").value = total.toFixed(2);
             hitungKembalian();
         }
 
         function hitungKembalian() {
-            let total = parseFloat(document.getElementById("TotalHarga").value) || 0;
-            let bayar = parseFloat(document.getElementById("JumlahBayar").value) || 0;
-            let kembalian = Math.max(bayar - total, 0);
+            const total = parseFloat(document.getElementById("TotalHarga").value) || 0;
+            const bayar = parseFloat(document.getElementById("JumlahBayar").value) || 0;
+            const kembalian = Math.max(bayar - total, 0);
             document.getElementById("Kembalian").value = kembalian.toFixed(2);
         }
 
-        document.getElementById("produk-list").addEventListener("change", function (event) {
-            if (event.target.classList.contains("produk-select")) {
-                let row = event.target.closest("tr");
-                let harga = event.target.selectedOptions[0].getAttribute("data-harga");
+        produkList.addEventListener("change", function (e) {
+            if (e.target.classList.contains("produk-select")) {
+                const row = e.target.closest("tr");
+                const harga = e.target.selectedOptions[0].getAttribute("data-harga") || 0;
                 row.querySelector(".harga-produk").value = harga;
                 hitungSubtotal(row);
             }
         });
 
-        document.getElementById("produk-list").addEventListener("input", function (event) {
-            if (event.target.classList.contains("jumlah-produk")) {
-                let row = event.target.closest("tr");
+        produkList.addEventListener("input", function (e) {
+            if (e.target.classList.contains("jumlah-produk")) {
+                const row = e.target.closest("tr");
                 hitungSubtotal(row);
             }
         });
 
         document.getElementById("add-produk").addEventListener("click", function () {
-            let template = document.querySelector(".produk-item");
-            let newRow = template.cloneNode(true);
+            const template = document.querySelector(".produk-item");
+            const newRow = template.cloneNode(true);
 
             newRow.querySelector(".produk-select").value = "";
             newRow.querySelector(".harga-produk").value = "";
             newRow.querySelector(".jumlah-produk").value = "";
             newRow.querySelector(".subtotal-produk").value = "";
 
-            document.getElementById("produk-list").appendChild(newRow);
+            produkList.appendChild(newRow);
         });
 
-        document.getElementById("produk-list").addEventListener("click", function (event) {
-            if (event.target.classList.contains("remove-produk")) {
-                let row = event.target.closest("tr");
+        produkList.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-produk")) {
+                const row = e.target.closest("tr");
                 if (document.querySelectorAll(".produk-item").length > 1) {
                     row.remove();
-                    hitungTotalHarga();
+                    hitungTotal();
                 }
             }
         });
 
         document.getElementById("JumlahBayar").addEventListener("input", hitungKembalian);
 
-        // Status Member Radio Button
-        const statusMemberRadio = document.querySelectorAll('input[name="StatusMember"]');
+        // Toggle pelanggan
         const pelangganContainer = document.getElementById("PelangganContainer");
+        const statusRadios = document.querySelectorAll('input[name="StatusMember"]');
 
         function togglePelanggan() {
-            const statusMemberValue = document.querySelector('input[name="StatusMember"]:checked').value;
-            if (statusMemberValue === "Member") {
+            const selected = document.querySelector('input[name="StatusMember"]:checked').value;
+            if (selected === "Member") {
                 pelangganContainer.style.display = "block";
             } else {
                 pelangganContainer.style.display = "none";
-                pelangganContainer.querySelector("select").value = "";
+                pelangganContainer.querySelector("select").selectedIndex = 0;
             }
         }
 
-        statusMemberRadio.forEach(radio => {
-            radio.addEventListener("change", togglePelanggan);
-        });
-
-        togglePelanggan(); // inisialisasi
+        statusRadios.forEach(radio => radio.addEventListener("change", togglePelanggan));
+        togglePelanggan(); // initial
     });
 </script>
 @endsection
