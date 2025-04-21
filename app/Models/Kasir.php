@@ -1,21 +1,19 @@
 <?php
 
-// app/Models/Kasir.php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Kasir extends User
+class User extends Authenticatable
 {
-    use HasFactory;
+    use Notifiable;
 
-    protected $table = 'users';
-    protected $fillable = ['name', 'email', 'password', 'role'];
+    protected $fillable = [
+        'name', 'email', 'password', 'role',
+    ];
 
-    public static function getKasir()
-    {
-        return self::where('role', 'admin')->orWhere('role', 'kasir')->get();
-    }
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
 }
-

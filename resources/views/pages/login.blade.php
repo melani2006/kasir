@@ -109,9 +109,6 @@
                 </form>
 
                 <!-- Tombol Register -->
-                <div class="text-center mt-3">
-                    <small>Belum punya akun? <a href="{{ route('pages.register') }}">Daftar</a></small>
-                </div>
             </div>
         </div>
     </div>

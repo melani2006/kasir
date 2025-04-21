@@ -23,6 +23,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Simpan</button>
+        <a href="{{ route('supplier.index') }}" class="btn btn-secondary">Batal</a>
     </form>
 </div>
 @endsection
