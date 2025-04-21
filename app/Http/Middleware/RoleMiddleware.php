@@ -5,7 +5,7 @@
     use Closure;
     use Illuminate\Http\Request;
     use Illuminate\Support\Facades\Auth;
-    use Illuminate\Support\Facades\Log; 
+    use Illuminate\Support\Facades\Log;
 
 class RoleMiddleware
 {
@@ -21,7 +21,7 @@ class RoleMiddleware
 
             Log::info("User role: $userRole, Expected roles: " . json_encode($roles));
 
-            // ✅ FIX: Izinkan admin masuk meskipun hanya 'petugas' yang diperbolehkan
+            // ✅ FIX: Izinkan admin masuk meskipun hanya 'kasir' yang diperbolehkan
             if ($userRole === 'admin' || in_array($userRole, $roles)) {
                 return $next($request);
             }

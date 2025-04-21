@@ -9,6 +9,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\KasirController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +26,7 @@ Route::get('/', function () {
 
 // Middleware Admin (Bisa akses semua)
 Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('kasir', KasirController::class);
     Route::resource('pelanggan', PelangganController::class);
     Route::resource('kategori', KategoriController::class);
     Route::resource('produk', ProdukController::class);
@@ -32,8 +34,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/logout', [RegisterController::class, 'logout'])->name('logout');
 });
 
-// Admin & Petugas bisa melihat index penjualan & detail penjualan
-Route::middleware(['auth', 'role:admin,petugas'])->group(function () {
+// Admin & Kasir bisa melihat index penjualan & detail penjualan
+Route::middleware(['auth', 'role:admin,kasir'])->group(function () {
     Route::get('/penjualan', [PenjualanController::class, 'index'])->name('penjualan.index');
 
     Route::get('/penjualan/struk/{penjualanid}', [PenjualanController::class, 'Struk'])->name('penjualan.struk');
@@ -47,8 +49,8 @@ Route::middleware(['auth', 'role:admin,petugas'])->group(function () {
 
     });
 
-// Middleware Petugas
-Route::middleware(['auth', 'role:petugas'])->group(function () {
+// Middleware Kasir
+Route::middleware(['auth', 'role:kasir'])->group(function () {
     Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
 });
 

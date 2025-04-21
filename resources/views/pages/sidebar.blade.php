@@ -15,8 +15,8 @@
     <div class="menu-inner-shadow"></div>
 
     <ul class="menu-inner py-1">
-        <!-- Dashboard (Admin & Petugas) -->
-        @if (in_array(auth()->user()->role, ['admin', 'petugas']))
+        <!-- Dashboard (Admin & Kasir) -->
+        @if (in_array(auth()->user()->role, ['admin', 'kasir']))
         <li class="menu-item {{ request()->routeIs('pages.dashboard') ? 'active' : '' }}">
             <a href="{{ route('home') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-home-circle"></i>
@@ -25,13 +25,18 @@
         </li>
         @endif
 
-        <!-- Menu Header "Pages" (Admin & Petugas) -->
+        <!-- Menu Header "Pages" (Admin & Kasir) -->
         <li class="menu-header small text-uppercase">
-            <span class="menu-header-text">Pages</span>
         </li>
 
         <!-- Menu Khusus Admin -->
         @if (auth()->user()->role == 'admin')
+        <li class="menu-item {{ request()->routeIs('kasir.*') ? 'active' : '' }}">
+            <a href="{{ route('kasir.index') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-user-pin"></i>
+                <div>Kasir</div>
+            </a>
+        </li>
         <li class="menu-item {{ request()->routeIs('pelanggan.*') ? 'active' : '' }}">
             <a href="{{ route('pelanggan.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-group"></i>
@@ -52,8 +57,8 @@
         </li>
         @endif
 
-        <!-- Produk, Penjualan, Laporan (Admin & Petugas) -->
-        @if (in_array(auth()->user()->role, ['admin', 'petugas']))
+        <!-- Produk, Penjualan, Laporan (Admin & Kasir) -->
+        @if (in_array(auth()->user()->role, ['admin', 'kasir']))
         <li class="menu-item {{ request()->routeIs('produk.*') ? 'active' : '' }}">
             <a href="{{ route('produk.index') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-package"></i>
